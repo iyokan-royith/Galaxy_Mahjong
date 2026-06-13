@@ -248,6 +248,7 @@ export class MahjongRule {
     intermediateHand:[IMianzi[], MahjongTile[]][], takeXZi:(tiles: MahjongTile[]) => [IMianzi, MahjongTile[]][]
   ):[IMianzi[], MahjongTile[]][] {
     if (
+      intermediateHand.length === 0 || // 抜き出せるパターンが1つも無い場合(雀頭/面子が取れず空が渡る。#20 のクラッシュ原因)
       intermediateHand[0][1].length === 0 // 全ての牌が抜き取られこれ以上とる牌が無い場合(最初に同数の牌が与えられている事が前提)
     ) {
       return intermediateHand
