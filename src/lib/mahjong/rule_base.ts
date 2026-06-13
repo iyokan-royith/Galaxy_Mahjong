@@ -255,27 +255,37 @@ export class MahjongRule {
     }
     // 結果保存用の変数
     const concatMianzi:[IMianzi[], MahjongTile[]][] = []
+    // これ以上面子(雀頭)が取れず牌が残った行き止まりの構成を保持する変数
+    // (例: 222 444 を抜いた後に 33 55 が残るような、最大数より少ない面子で
+    //  打ち止まる分解。これを捨てると双椪等の待ちを取りこぼす #20)
+    const stuckMianzi:[IMianzi[], MahjongTile[]][] = []
+    const pushUnique = (dst:[IMianzi[], MahjongTile[]][], candidateHand:[IMianzi[], MahjongTile[]]) => {
+      const currentMianzi = candidateHand[0]
+      if (
+        dst.map(c => c[0])
+          .every(
+            ms => !_.equalSetArray(
+              ms,
+              currentMianzi,
+              (a, b) => this.compareMianzi(a, b))
+          )) {
+        // 同一の面子(雀頭)の組み合わせが無い場合のみ結果に追加する
+        dst.push(candidateHand)
+      }
+    }
     intermediateHand.forEach(i => {
       // 残りの手牌から面子のパターンを抽出
       const takenXZi = takeXZi(i[1])
+      if (takenXZi.length === 0) {
+        // これ以上は取れないが牌が残っている行き止まり構成。
+        // 後続の探索(双椪/塔子待ち等)で利用するため保持しておく。
+        pushUnique(stuckMianzi, i)
+        return
+      }
       takenXZi.forEach(t => {
         // [[...既にある面子, 今とった面子], [残った手牌]]
         const candidateHand:[IMianzi[], MahjongTile[]] = [[...i[0], t[0]], t[1]]
-        // 現在取った面子
-        const currentMianzi = candidateHand[0]
-        // 今迄に取った面子の列
-        const existongConcatMianzi = concatMianzi.map(c => c[0])
-        if (
-          existongConcatMianzi
-            .every(
-              ms => !_.equalSetArray(
-                ms,
-                currentMianzi,
-                (a, b) => this.compareMianzi(a, b))
-            )) {
-          // 同一の面子(雀頭)の組み合わせが無い場合のみ結果に追加する
-          concatMianzi.push(candidateHand)
-        }
+        pushUnique(concatMianzi, candidateHand)
       })
     })
     if (concatMianzi.length === 0) {
@@ -283,7 +293,8 @@ export class MahjongRule {
       // 残った牌と一緒に抜いた面子構成を返却する
       return intermediateHand
     }
-    return this.takeRecursivelyXZi(concatMianzi, takeXZi)
+    // まだ伸ばせる構成は再帰で深掘りし、行き止まり構成はそのまま結果に合流させる
+    return [...this.takeRecursivelyXZi(concatMianzi, takeXZi), ...stuckMianzi]
   }
 
   /**
