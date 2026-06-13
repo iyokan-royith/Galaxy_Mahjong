@@ -10,10 +10,10 @@
 
 GitHub Actions によって CI/CD が組まれています。
 
-* main 以外への branch への push
+* main 以外への branch への push、および main 向けの pull request
   * UT が自動的に走ります。カバレッジも表示されますが、表示されるだけです。
 
-* main への merge
+* `v` から始まるタグ (`v**`) の push
   * <https://minori-akizuki.github.io/Galaxy_Mahjong/> にページがデプロイされます
 
 ## Project setup

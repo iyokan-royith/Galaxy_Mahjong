@@ -26,13 +26,13 @@ export const tileMap:TileMap = {
     s: { color: TileColor.siozi, maxNumber: 9 }
   },
   symboledTileMap: {
-    /** 東(west) */
+    /** 東(east) */
     w: { color: TileColor.feng, number: 1 },
     /** 南(south) */
     s: { color: TileColor.feng, number: 2 },
-    /** 西(east) */
+    /** 西(west) */
     e: { color: TileColor.feng, number: 3 },
-    /** 北(noath) */
+    /** 北(north) */
     n: { color: TileColor.feng, number: 4 },
     /** 白(bai ban) */
     b: { color: TileColor.sanyuan, number: 1 },
