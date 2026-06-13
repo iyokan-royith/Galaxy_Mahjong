@@ -20,6 +20,23 @@ describe('通常形上がり牌探索', () => {
     expect(wait.length).toBe(6)
   })
 
+  it('対称な双椪の片側を取りこぼさない', () => {
+    // #20 真症状: 222 33 444 55 は 3 面子+雀頭の一歩手前。
+    // 3s で和了 = 222/333/444 + 雀頭55、対称な 5s で和了 = 222/444/555 + 雀頭33。
+    // 仕様(3面子+1雀頭)から人手で導いた正しい待ち = {3s, 4s, 5s, 6s}。
+    // 以前は対称解の片側(5s)を列挙で取りこぼしていた。
+    const hand = parser('2s2s2s3s3s4s4s4s5s5s')
+    const wait = GALAXY_RULE.solveHuleTile(hand)
+    const waitTiles = _.uniq(
+      wait.map(([mianzi, tiles, form]) => tiles).flat(),
+      (ta, tb) => GALAXY_RULE.compareTileByNumber(ta, tb)
+    )
+    expect(waitTiles.length).toBe(4)
+    parser('3s4s5s6s').forEach(w => {
+      expect(waitTiles).toContainEqual(w)
+    })
+  })
+
   it('双椪判定', () => {
     const hand = parser('nnlglg')
     const wait = GALAXY_RULE.solveHuleTile(hand)
